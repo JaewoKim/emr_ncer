@@ -96,6 +96,7 @@
     // ============================================================
     // INTEGRATED DATASET (Stoelting + Sources 153-304) - KOREAN VERSION
     // ============================================================
+    
     const masterData = [
         // --- General / History ---
         { id: 'src_153', cat: 'special', lvl: 'crt', label: '아나필락시스 과거력', sub: 'Src 153', med: "Anaphylaxis 과거력.\n[Stoelting] IgE 매개성 vs 비IgE성 감별 필요. H1/H2 blocker 및 Steroid 전처치 고려. Histamine-releasing NMB 사용 회피.", pat: "과거 심한 알레르기 쇼크 병력이 있어, 예방 약물을 투여하고 알레르기 유발 가능성이 낮은 약제만 선별하여 사용합니다." },
@@ -293,20 +294,73 @@
         setMsg("선택을 초기화했습니다.");
     }
 
-    function loadSample() {
-        const sample = {
+   function loadSample(sampleKey = "basic") {
+    const SAMPLES = {
+        basic: {
             version: "premedi-emr-0.1",
             patient: { id: "P-000123", age: 72, sex: "M" },
-            encounter: { id: "E-20260105-01", surgery_name: "Laparoscopic Cholecystectomy", planned_date: "2026-01-10" },
+            encounter: {
+                id: "E-20260105-01",
+                surgery_name: "Laparoscopic Cholecystectomy",
+                planned_date: "2026-01-10"
+            },
             diagnoses: ["I10", "E11.9", "N18.3"],
             medications: ["losartan 50mg", "metformin 500mg", "insulin glargine", "prednisone 5mg"],
             labs: { k: 5.3, creatinine: 1.8, egfr: 42, hb: 7.6, plt: 180 },
             flags: { dialysis: false, emergency: false, jehovah: false, obesity_bmi: 36 }
-        };
-        const ta = document.getElementById("emrJson");
-        if (ta) ta.value = JSON.stringify(sample, null, 2);
-        setMsg("샘플을 불러왔습니다. 'EMR JSON 적용'을 눌러보세요.");
-    }
+        },
+
+        esrd_dialysis: {
+            version: "premedi-emr-0.1",
+            patient: { id: "P-000124", age: 64, sex: "M" },
+            encounter: {
+                id: "E-20260106-02",
+                surgery_name: "AV Fistula Revision",
+                planned_date: "2026-01-12"
+            },
+            diagnoses: ["N18.6"],
+            medications: [],
+            labs: { k: 5.8, creatinine: 6.2, egfr: 8, hb: 8.4, plt: 160 },
+            flags: { dialysis: true, emergency: false, jehovah: false }
+        },
+
+        asthma_young: {
+            version: "premedi-emr-0.1",
+            patient: { id: "P-000125", age: 29, sex: "F" },
+            encounter: {
+                id: "E-20260107-03",
+                surgery_name: "Appendectomy",
+                planned_date: "2026-01-15"
+            },
+            diagnoses: ["J45"],
+            medications: ["salbutamol inhaler"],
+            labs: { k: 4.1, hb: 12.8, plt: 250 },
+            flags: { emergency: false }
+        },
+
+        jw_severe_anemia: {
+            version: "premedi-emr-0.1",
+            patient: { id: "P-000126", age: 52, sex: "F" },
+            encounter: {
+                id: "E-20260108-04",
+                surgery_name: "Hysterectomy",
+                planned_date: "2026-02-01"
+            },
+            diagnoses: ["D64.9"],
+            medications: ["iron supplement"],
+            labs: { hb: 6.9, plt: 210 },
+            flags: { jehovah: true, emergency: false }
+        }
+    };
+
+    const sample = SAMPLES[sampleKey] || SAMPLES.basic;
+
+    const ta = document.getElementById("emrJson");
+    if (ta) ta.value = JSON.stringify(sample, null, 2);
+
+    setMsg(`샘플 '${sampleKey}'를 불러왔습니다. 'EMR JSON 적용'을 눌러보세요.`);
+}
+
 
     function applyEmrJson() {
         const ta = document.getElementById("emrJson");
